@@ -53,14 +53,16 @@ public class SwiftPinchPlugin: NSObject, FlutterPlugin {
             PinchSDK.start(providers: [.bluetooth])
             result(true)
         } else if (method == "startMotionProvider") {
+            PinchSDK.start(providers: [.motion])
             result(true)
         } else if (method == "startLocationProvider") {
             PinchSDK.start(providers: [.location])
             result(true)
         } else if (method == "stopBluetoothProvider") {
-            PinchSDK.stop(providers: [.location])
+            PinchSDK.stop(providers: [.bluetooth])
             result(true)
         } else if (method == "stopMotionProvider") {
+            PinchSDK.stop(providers: [.motion])
             result(true)
         } else if (method == "stopLocationProvider") {
             PinchSDK.stop(providers: [.location])
