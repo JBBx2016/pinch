@@ -17,6 +17,8 @@ Pod::Spec.new do |s|
   s.dependency 'Flutter'
 
   s.dependency 'PinchSDK', '2.2.0'
+  s.dependency 'PinchSDKLegacy', '1.0.103'
+  s.dependency 'PinchSDKLegacyBluetooth', '1.0.103'
 
   s.ios.deployment_target = '9.0'
 end
