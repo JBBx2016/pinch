@@ -176,7 +176,7 @@ public class SwiftPinchPlugin: NSObject, FlutterPlugin {
     }
 
     private func getPrivacyDashboard(_ result: @escaping FlutterResult) {
-        result(PinchSDK.getPrivaryDashboardUrl())
+        result(PinchSDK.getPrivaryDashboardUrl(for: .analytics))
     }
 
     private func getPrivacyTermsUrl(_ result: @escaping FlutterResult, with arguments: Any?) {
