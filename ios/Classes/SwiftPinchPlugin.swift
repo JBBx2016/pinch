@@ -30,7 +30,7 @@ public class SwiftPinchPlugin: NSObject, FlutterPlugin {
         } else if (method == "getPrivacyTermsUrl") {
             getPrivacyTermsUrl(result, with: call.arguments)
         } else if (method == "getPrivacyDashboard") {
-            getPrivacyDashboard(result, with: call.arguments)
+            getPrivacyDashboard(result)
         } else if (method == "grant") {
             grant(result, with: call.arguments)
         } else if (method == "revoke") {
@@ -341,17 +341,6 @@ public class SwiftPinchPlugin: NSObject, FlutterPlugin {
         } else {
             result(FlutterError(code: "INVALID_CONTENT", message: "Invalid content supplied", details: nil))
         }
-    }
-
-
-    private func start(_ result: @escaping FlutterResult) {
-        PinchSDK.start()
-        result(true)
-    }
-
-    private func stop(_ result: @escaping FlutterResult) {
-        PinchSDK.stop()
-        result(false)
     }
 
     private func getStarted(_ result: @escaping FlutterResult) {
