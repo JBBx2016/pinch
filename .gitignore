@@ -1,0 +1,5 @@
+.packages
+pinch.iml
+pubspec.lock
+.idea
+.dart_tool

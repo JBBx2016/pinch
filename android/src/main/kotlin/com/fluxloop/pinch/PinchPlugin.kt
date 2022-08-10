@@ -12,6 +12,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
+import org.json.JSONObject
 
 class PinchPlugin : MethodCallHandler {
     companion object {
@@ -115,6 +116,17 @@ class PinchPlugin : MethodCallHandler {
                 }
                 "requestBluetoothPermission" -> result.success(true)
                 "requestMotionPermission" -> result.success(true)
+                "getEnabledProviders" -> getEnabledProviders(result)
+                "getActivityEvents" -> getActivityEvents(result)
+                "anonymizeLocation" -> {
+                    val latitude: Double? = call.argument("latitude")
+                    val longitude: Double? = call.argument("longitude")
+                    if (latitude == null || longitude == null || (latitude == 0.0 && longitude == 0.0)) {
+                        result.error("Received invalid arguments", call.method, null)
+                    } else {
+                        anonymizeLocation(latitude, longitude, result)
+                    }
+                }
                 else -> result.notImplemented()
             }
         } catch (e: Exception) {
@@ -134,6 +146,45 @@ class PinchPlugin : MethodCallHandler {
             }
         }
         return result.success(consents.toList())
+    }
+
+    private fun getEnabledProviders(result: Result) {
+        val providers = arrayListOf<String>()
+        for (provider in Pinch.enabledProviders) {
+            when (provider) {
+                Pinch.Provider.LOCATION -> providers.add("location")
+                Pinch.Provider.BLUETOOTH -> providers.add("bluetooth")
+                Pinch.Provider.MOTION -> providers.add("motion")
+            }
+        }
+        return result.success(providers.toList())
+    }
+
+    private fun getActivityEvents(result: Result) {
+        Pinch.getActivityEvents { activityEvents ->
+            val flutterActivityEvents = arrayListOf<String>()
+            for (event in activityEvents) {
+                flutterActivityEvents.add(JSONObject()
+                        .put("type", event.type)
+                        .put("startTime", event.startTime)
+                        .put("endTime", event.endTime)
+                        .put("startLatitude", event.startLatitude)
+                        .put("startLongitude", event.startLongitude)
+                        .put("endLatitude", event.endLatitude)
+                        .put("endLongitude", event.endLongitude)
+                        .put("distance", event.distance)
+                        .put("airDistance", event.airDistance)
+                        .put("maxDistance", event.maxDistance)
+                        .put("eventSavedTime", event.eventSavedTime)
+                        .toString()
+                )
+            }
+            result.success(flutterActivityEvents.toList())
+        }
+    }
+
+    private fun anonymizeLocation(latitude: Double, longitude: Double, result: Result) {
+        Pinch.anonymizeLocation(latitude, longitude) { locationId -> result.success(locationId)}
     }
 
     private fun setLogLevel(call: MethodCall, result: Result) {

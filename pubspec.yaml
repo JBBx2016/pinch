@@ -1,6 +1,6 @@
 name: pinch
 description: The PinchSDK is used to collect the neccessary data for allowing you to gain actionable insights through real-time location and behavioural data.
-version: 1.6.0
+version: 2.1.0
 homepage: https://developers.pinch.no
 
 environment:

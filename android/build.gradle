@@ -2,10 +2,10 @@ group 'com.fluxloop.pinch'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.5.21'
+    ext.kotlin_version = '1.7.10'
     repositories {
         google()
-        mavenCentral()
+        jcenter()
     }
 
     dependencies {
@@ -14,12 +14,10 @@ buildscript {
     }
 }
 
-rootProject.allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        maven { url "https://fluxloop.jfrog.io/artifactory/pinch" }
-    }
+repositories {
+    google()
+    mavenCentral()
+    maven { url "https://fluxloop.jfrog.io/artifactory/pinch" }
 }
 
 apply plugin: 'com.android.library'
@@ -42,5 +40,7 @@ android {
 }
 
 dependencies {
-    implementation "com.fluxloop.pinch:pinch-sdk:2.5.2"
+    implementation("com.fluxloop.pinch:pinch-sdk:2.7.1") {
+        exclude group: 'com.kogenta.mmi', module: 'tensorflow-lite'
+    }
 }

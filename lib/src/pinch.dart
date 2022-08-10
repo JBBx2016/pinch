@@ -16,7 +16,10 @@ class Pinch {
   static Future<bool?> setMessagingId(String messagingId) =>
       _channel.invokeMethod('setMessagingId', {"messagingId": messagingId});
 
+  @Deprecated(
+      'Use provider specific start instead. Will be removed in the future.')
   static Future<bool?> start() => _channel.invokeMethod('start');
+
   static Future<bool?> startBluetoothProvider() =>
       _channel.invokeMethod('startBluetoothProvider');
   static Future<bool?> startLocationProvider() =>
@@ -45,8 +48,13 @@ class Pinch {
 
   static Future<String?> getPrivacyTermsUrl() =>
       _channel.invokeMethod('getPrivacyTermsUrl');
-  static Future<String?> getPrivacyDashboard(PinchConsent consent) => _channel
-      .invokeMethod('getPrivacyDashboard', {"consentId": consent.value});
+
+  static Future<String?> getPrivacyDashboard(
+          @Deprecated("Consents for dashboard is no longer needed.")
+              PinchConsent consent) =>
+      _channel.invokeMethod(
+          'getPrivacyDashboard', {"consentId": PinchConsent.analytics});
+
   static Future<bool?> grant(PinchConsent consent) =>
       _channel.invokeMethod('grant', {"consentId": consent.value});
   static Future<bool?> revoke(PinchConsent consent) =>
@@ -62,6 +70,14 @@ class Pinch {
       _channel.invokeMethod('requestBluetoothPermission');
   static Future<bool?> requestMotionPermission() =>
       _channel.invokeMethod('requestBluetoothPermission');
+
+  static Future<List<String>?> getEnabledProviders() =>
+      _channel.invokeMethod('getEnabledProviders');
+  static Future<String?> anonymizeLocation(double latitude, double longitude) =>
+      _channel.invokeMethod(
+          'anonymizeLocation', {"latitude": latitude, "longitude": longitude});
+  static Future<List<String>?> getActivityEvents() =>
+      _channel.invokeMethod('getActivityEvents');
 
   static Future<List<PinchMessage>> getMessages() async {
     var dashboardUrl = await getPrivacyDashboard(PinchConsent.analytics);
@@ -83,7 +99,5 @@ class Pinch {
     } else {
       return List<PinchMessage>.empty();
     }
-    //var msgArray = await _channel.invokeMethod('getMessages');
-    //return new List();
   }
 }

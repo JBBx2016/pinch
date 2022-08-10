@@ -3,7 +3,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'pinch'
-  s.version          = '1.6.0'
+  s.version          = '2.0.1'
   s.summary          = 'PinchSDK'
   s.description      = <<-DESC
   The PinchSDK is used to collect the neccessary data for allowing you to gain actionable insights through real-time location and behavioural data.
@@ -16,9 +16,9 @@ Pod::Spec.new do |s|
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
 
-  s.dependency 'PinchSDK', '2.2.0'
-  s.dependency 'PinchSDKLegacy', '1.0.103'
-  s.dependency 'PinchSDKLegacyBluetooth', '1.0.103'
+  s.dependency 'PinchSDK', '2.2.2'
+  s.dependency 'PinchSDKLegacy', '1.0.104'
+  s.dependency 'PinchSDKLegacyBluetooth', '1.0.104'
 
   s.ios.deployment_target = '9.0'
 end
