@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/services.dart';
-import 'package:pinch/pinch.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:pinch/pinch.dart';
 
 class Pinch {
   static const MethodChannel _channel =
@@ -11,34 +11,37 @@ class Pinch {
 
   static Future<bool?> setApiKey(String apiKey) =>
       _channel.invokeMethod('setApiKey', {"apiKey": apiKey});
+
   static Future<bool?> setProductionMode(bool inProduction) =>
       _channel.invokeMethod('setProductionMode', {"enabled": inProduction});
+
   static Future<bool?> setMessagingId(String messagingId) =>
       _channel.invokeMethod('setMessagingId', {"messagingId": messagingId});
 
-  @Deprecated(
-      'Use provider specific start instead. Will be removed in the future.')
-  static Future<bool?> start() => _channel.invokeMethod('start');
-
   static Future<bool?> startBluetoothProvider() =>
       _channel.invokeMethod('startBluetoothProvider');
+
   static Future<bool?> startLocationProvider() =>
       _channel.invokeMethod('startLocationProvider');
+
   static Future<bool?> startMotionProvider() =>
       _channel.invokeMethod('startMotionProvider');
 
-  static Future<bool?> stop() => _channel.invokeMethod('stop');
   static Future<bool?> stopBluetoothProvider() =>
       _channel.invokeMethod('stopBluetoothProvider');
+
   static Future<bool?> stopLocationProvider() =>
       _channel.invokeMethod('stopLocationProvider');
+
   static Future<bool?> stopMotionProvider() =>
       _channel.invokeMethod('stopMotionProvider');
 
   static Future<bool?> addCustomEvent(String type, String json) =>
       _channel.invokeMethod('addCustomEvent', {"json": json, "type": type});
+
   static Future<bool?> setMetadata(String type, String json) =>
       _channel.invokeMethod('setMetadata', {"json": json, "type": type});
+
   static Future<bool?> sendDemographicProfile(int birthYear, String gender) =>
       _channel.invokeMethod(
           'sendDemographicProfile', {"birthYear": birthYear, "gender": gender});
@@ -49,39 +52,44 @@ class Pinch {
   static Future<String?> getPrivacyTermsUrl() =>
       _channel.invokeMethod('getPrivacyTermsUrl');
 
-  static Future<String?> getPrivacyDashboard(
-          @Deprecated("Consents for dashboard is no longer needed.")
-              PinchConsent consent) =>
-      _channel.invokeMethod(
-          'getPrivacyDashboard', {"consentId": PinchConsent.analytics});
+  static Future<String> getPrivacyDashboard() => _channel
+      .invokeMethod<String>('getPrivacyDashboard')
+      .then((value) => value!);
 
   static Future<bool?> grant(PinchConsent consent) =>
       _channel.invokeMethod('grant', {"consentId": consent.value});
+
   static Future<bool?> revoke(PinchConsent consent) =>
       _channel.invokeMethod('revoke', {"consentId": consent.value});
+
   static Future<bool?> deleteCollectedData() =>
       _channel.invokeMethod('deleteCollectedData');
+
   static Future<List<int>?> getGrantedConsents() =>
       _channel.invokeMethod('getGrantedConsents');
+
   static Future<bool?> setAdid(String adid) =>
       _channel.invokeMethod('setAdid', {"adid": adid});
 
   static Future<bool?> requestBluetoothPermission() =>
       _channel.invokeMethod('requestBluetoothPermission');
+
   static Future<bool?> requestMotionPermission() =>
       _channel.invokeMethod('requestBluetoothPermission');
 
   static Future<List<String>?> getEnabledProviders() =>
       _channel.invokeMethod('getEnabledProviders');
+
   static Future<String?> anonymizeLocation(double latitude, double longitude) =>
       _channel.invokeMethod(
           'anonymizeLocation', {"latitude": latitude, "longitude": longitude});
+
   static Future<List<String>?> getActivityEvents() =>
       _channel.invokeMethod('getActivityEvents');
 
   static Future<List<PinchMessage>> getMessages() async {
-    var dashboardUrl = await getPrivacyDashboard(PinchConsent.analytics);
-    var urlParts = dashboardUrl!.split("?key=");
+    var dashboardUrl = await getPrivacyDashboard();
+    var urlParts = dashboardUrl.split("?key=");
     if (urlParts.length != 2) return [];
     var apiKey = await _channel.invokeMethod('getApiKey') as String;
 

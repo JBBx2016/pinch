@@ -13,11 +13,7 @@ public class SwiftPinchPlugin: NSObject, FlutterPlugin {
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let method: String = call.method
 
-        if (method == "start") {
-            start(result)
-        } else if (method == "stop") {
-            stop(result)
-        } else if (method == "getStarted") {
+         if (method == "getStarted") {
             getStarted(result)
         } else if (method == "addCustomEvent") {
             addCustomEvent(result, with: call.arguments)
@@ -179,23 +175,8 @@ public class SwiftPinchPlugin: NSObject, FlutterPlugin {
         result(true)
     }
 
-    private func getPrivacyDashboard(_ result: @escaping FlutterResult, with arguments: Any?) {
-        guard let args = arguments as? [String: Any] else {
-            result(FlutterError(code: "INVALID_ARG", message: "Invalid arguments supplied", details: nil))
-            return
-        }
-        
-        if let consentId = args["consentId"] as? Int {
-            switch consentId {
-                case 1: result(PinchSDK.getPrivaryDashboardUrl(for: .analytics))
-                case 2: result(PinchSDK.getPrivaryDashboardUrl(for: .surveys))
-                case 3: result(PinchSDK.getPrivaryDashboardUrl(for: .campaigns))
-                case 4: result(PinchSDK.getPrivaryDashboardUrl(for: .ads))
-                default: result(PinchSDK.getPrivaryDashboardUrl(for: .analytics))
-            }
-        } else {
-            result(PinchSDK.getPrivaryDashboardUrl(for: .analytics))
-        }
+    private func getPrivacyDashboard(_ result: @escaping FlutterResult) {
+        result(PinchSDK.getPrivaryDashboardUrl())
     }
 
     private func getPrivacyTermsUrl(_ result: @escaping FlutterResult, with arguments: Any?) {
