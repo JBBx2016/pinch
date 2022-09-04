@@ -24,14 +24,13 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 32
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
     defaultConfig {
         minSdkVersion 16
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     lintOptions {
         disable 'InvalidPackage'
@@ -40,7 +39,7 @@ android {
 }
 
 dependencies {
-    implementation("com.fluxloop.pinch:pinch-sdk:2.7.1") {
+    implementation("com.fluxloop.pinch:pinch-sdk:2.7.2") {
         exclude group: 'com.kogenta.mmi', module: 'tensorflow-lite'
     }
 }
