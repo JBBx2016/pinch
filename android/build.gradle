@@ -39,7 +39,7 @@ android {
 }
 
 dependencies {
-    implementation("com.fluxloop.pinch:pinch-sdk:2.7.2") {
+    implementation("com.fluxloop.pinch:pinch-sdk:2.7.3") {
         exclude group: 'com.kogenta.mmi', module: 'tensorflow-lite'
     }
 }
