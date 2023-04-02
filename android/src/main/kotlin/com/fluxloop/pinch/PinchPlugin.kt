@@ -1,14 +1,17 @@
 package com.fluxloop.pinch
 
+import android.util.Log
 import com.fluxloop.pinch.common.logging.LogLevel
-import com.fluxloop.pinch.common.model.DemographicProfile
 import com.fluxloop.pinch.sdk.Pinch
+import com.fluxloop.pinch.common.model.DemographicProfile
+import com.fluxloop.pinch.common.model.PinchMessage
+import com.fluxloop.pinch.sdk.PinchMessagingCenter
 import com.fluxloop.pinch.sdk.PinchMetrics
-import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import io.flutter.plugin.common.PluginRegistry.Registrar
 import org.json.JSONObject
 
 class PinchPlugin : FlutterPlugin, MethodCallHandler {
@@ -17,16 +20,24 @@ class PinchPlugin : FlutterPlugin, MethodCallHandler {
     override fun onMethodCall(call: MethodCall, result: Result) {
         try {
             when (call.method) {
+                "start" -> {
+                    Pinch.start()
+                    result.success(true)
+                }
+                "stop" -> {
+                    Pinch.stop()
+                    result.success(true)
+                }
                 "setMessagingId" -> {
                     val messagingId: String? = call.argument("messagingId")
-                    Pinch.pushToken = messagingId
+                    Pinch.messagingId = messagingId
                     result.success(true)
                 }
                 "addCustomEvent" -> {
                     val type: String? = call.argument("type")
                     val json: String? = call.argument("json")
                     if (type == null || json == null) {
-                        result.error("Received invalid data", call.method, null)
+                        result.error("Received invalid data", call.method, null);
                     } else {
                         Pinch.addCustomEvent(type, json)
                         result.success(true)
@@ -36,7 +47,7 @@ class PinchPlugin : FlutterPlugin, MethodCallHandler {
                     val type: String? = call.argument("type")
                     val json: String? = call.argument("json")
                     if (type == null || json == null) {
-                        result.error("Received invalid data", call.method, null)
+                        result.error("Received invalid data", call.method, null);
                     } else {
                         Pinch.setMetadata(type, json)
                         result.success(true)
@@ -46,7 +57,7 @@ class PinchPlugin : FlutterPlugin, MethodCallHandler {
                     val birthYear: Int? = call.argument("birthYear")
                     val gender: String? = call.argument("gender")
                     if (birthYear == null || gender == null) {
-                        result.error("Received invalid data", call.method, null)
+                        result.error("Received invalid data", call.method, null);
                     } else {
                         val finalGender = when (gender) {
                             "male" -> DemographicProfile.Gender.MALE
@@ -54,12 +65,7 @@ class PinchPlugin : FlutterPlugin, MethodCallHandler {
                             "unknown" -> DemographicProfile.Gender.UNKNOWN
                             else -> DemographicProfile.Gender.UNKNOWN
                         }
-                        Pinch.sendDemographicProfile(
-                            DemographicProfile(
-                                birthYear = birthYear,
-                                gender = finalGender
-                            )
-                        )
+                        Pinch.sendDemographicProfile(DemographicProfile(birthYear = birthYear, gender = finalGender))
                         result.success(true)
                     }
                 }
@@ -71,7 +77,7 @@ class PinchPlugin : FlutterPlugin, MethodCallHandler {
                 }
                 "setLogLevel" -> setLogLevel(call, result)
                 "getPrivacyTermsUrl" -> result.success(Pinch.privacyTermsUrl)
-                "getPrivacyDashboard" -> getPrivacyDashboard(result)
+                "getPrivacyDashboard" -> getPrivacyDashboard(call, result)
                 "grant" -> grant(call, result)
                 "revoke" -> revoke(call, result)
                 "deleteCollectedData" -> Pinch.deleteCollectedData { result.success(it) }
@@ -105,7 +111,16 @@ class PinchPlugin : FlutterPlugin, MethodCallHandler {
                 "requestBluetoothPermission" -> result.success(true)
                 "requestMotionPermission" -> result.success(true)
                 "getEnabledProviders" -> getEnabledProviders(result)
-                "getActivityEvents" -> getActivityEvents(result)
+                "getActivityEvents" -> {
+                    val fromTime: Long? = call.argument("fromTime")
+                    val toTime: Long? = call.argument("toTime")
+                    if (fromTime == null || toTime == null) {
+                        result.error("Received invalid data", call.method, null);
+                    } else {
+                        getActivityEvents(fromTime, toTime, result)
+                        result.success(true)
+                    }
+                }
                 "anonymizeLocation" -> {
                     val latitude: Double? = call.argument("latitude")
                     val longitude: Double? = call.argument("longitude")
@@ -148,32 +163,14 @@ class PinchPlugin : FlutterPlugin, MethodCallHandler {
         return result.success(providers.toList())
     }
 
-    private fun getActivityEvents(result: Result) {
-        Pinch.getActivityEvents { activityEvents ->
-            val flutterActivityEvents = arrayListOf<String>()
-            for (event in activityEvents) {
-                flutterActivityEvents.add(
-                    JSONObject()
-                        .put("type", event.type)
-                        .put("startTime", event.startTime)
-                        .put("endTime", event.endTime)
-                        .put("startLatitude", event.startLatitude)
-                        .put("startLongitude", event.startLongitude)
-                        .put("endLatitude", event.endLatitude)
-                        .put("endLongitude", event.endLongitude)
-                        .put("distance", event.distance)
-                        .put("airDistance", event.airDistance)
-                        .put("maxDistance", event.maxDistance)
-                        .put("eventSavedTime", event.eventSavedTime)
-                        .toString()
-                )
-            }
-            result.success(flutterActivityEvents.toList())
+    private fun getActivityEvents(fromTime: Long, toTime: Long, result: Result) {
+        Pinch.getActivityEvents(fromTime, toTime) { activityEvents ->
+            result.success(activityEvents)
         }
     }
 
     private fun anonymizeLocation(latitude: Double, longitude: Double, result: Result) {
-        Pinch.anonymizeLocation(latitude, longitude) { locationId -> result.success(locationId) }
+        Pinch.anonymizeLocation(latitude, longitude) { locationId -> result.success(locationId)}
     }
 
     private fun setLogLevel(call: MethodCall, result: Result) {
@@ -191,8 +188,14 @@ class PinchPlugin : FlutterPlugin, MethodCallHandler {
         return result.success(true)
     }
 
-    private fun getPrivacyDashboard(result: Result) {
-        result.success(Pinch.getPrivacyDashboard())
+    private fun getPrivacyDashboard(call: MethodCall, result: Result) {
+        when (call.argument<Int?>("consentId")) {
+            1 -> result.success(Pinch.getPrivacyDashboard(Pinch.Consent.ANALYTICS))
+            2 -> result.success(Pinch.getPrivacyDashboard(Pinch.Consent.SURVEYS))
+            3 -> result.success(Pinch.getPrivacyDashboard(Pinch.Consent.CAMPAIGNS))
+            4 -> result.success(Pinch.getPrivacyDashboard(Pinch.Consent.ADS))
+            else -> result.success(Pinch.getPrivacyDashboard(Pinch.Consent.ANALYTICS))
+        }
     }
 
     private fun grant(call: MethodCall, result: Result) {
@@ -245,10 +248,7 @@ class PinchPlugin : FlutterPlugin, MethodCallHandler {
                             if (type == 4) {
                                 PinchMetrics.Onboarding.requestedPermission(requestedType, accepted)
                             } else if (type == 5) {
-                                PinchMetrics.Onboarding.requestedRuntimePermission(
-                                    requestedType,
-                                    accepted
-                                )
+                                PinchMetrics.Onboarding.requestedRuntimePermission(requestedType, accepted)
                             }
                         } else {
                             failed = true
