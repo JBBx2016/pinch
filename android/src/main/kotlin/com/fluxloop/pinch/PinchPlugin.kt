@@ -1,18 +1,14 @@
 package com.fluxloop.pinch
 
-import android.util.Log
 import com.fluxloop.pinch.common.logging.LogLevel
-import com.fluxloop.pinch.sdk.Pinch
 import com.fluxloop.pinch.common.model.DemographicProfile
-import com.fluxloop.pinch.common.model.PinchMessage
-import com.fluxloop.pinch.sdk.PinchMessagingCenter
+import com.fluxloop.pinch.sdk.Pinch
 import com.fluxloop.pinch.sdk.PinchMetrics
+import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.PluginRegistry.Registrar
-import org.json.JSONObject
 
 class PinchPlugin : FlutterPlugin, MethodCallHandler {
     private var methodChannel: MethodChannel? = null
